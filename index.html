@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스미싱 헌터 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .phone-mockup {
+            width: 100%;
+            max-width: 400px;
+            height: 700px;
+            border: 12px solid #1f2937;
+            border-radius: 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0,0,0,0.1);
+            position: relative;
+            background-color: #f9fafb;
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #ffffff, #f0f4f8);
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative; /* For overlay positioning */
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            color: #4b5563;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 22px;
+            line-height: 1.6;
+            word-break: break-word;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .message-bubble.received {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            border-top-left-radius: 6px;
+            align-self: flex-start;
+        }
+        .btn-gradient-green {
+            background-image: linear-gradient(to right, #34d399, #10b981);
+        }
+        .btn-gradient-red {
+            background-image: linear-gradient(to right, #f87171, #ef4444);
+        }
+        .btn-gradient-blue {
+             background-image: linear-gradient(to right, #60a5fa, #3b82f6);
+        }
+         .btn-gradient-gray {
+             background-image: linear-gradient(to right, #9ca3af, #6b7280);
+        }
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .feedback-animation {
+            animation: pop 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="phone-mockup">
+        <div class="phone-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span id="currentTime" class="font-bold">14:30</span>
+                <div class="flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path d="M15 11a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M18 8a6 6 0 00-12 0c0 1.933.783 3.683 2.067 4.933L8 17.583a1 1 0 001.414 0L14 14.583A8 8 0 0018 8z"></path></svg>
+                    <span class="font-bold">86%</span>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div id="startScreen" class="flex flex-col items-center justify-center text-center p-8 h-full">
+                <div class="mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-28 w-28 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M3.5 4.5A1.5 1.5 0 015 3h10a1.5 1.5 0 011.5 1.5v7A1.5 1.5 0 0115 13H5a1.5 1.5 0 01-1.5-1.5v-7zM5 4a.5.5 0 00-.5.5v7a.5.5 0 00.5.5h10a.5.5 0 00.5-.5v-7a.5.5 0 00-.5-.5H5z"/>
+                      <path d="M4.5 6.5A.5.5 0 015 6h10a.5.5 0 010 1H5a.5.5 0 01-.5-.5zM5 8a.5.5 0 000 1h4a.5.5 0 000-1H5z"/>
+                      <path fill-rule="evenodd" d="M14.5 13.5a3.5 3.5 0 10-7 0 3.5 3.5 0 007 0zm-1.293 1.293a.75.75 0 01-1.06 1.06l-1.95-1.95a.75.75 0 111.06-1.06l1.95 1.95z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-black text-gray-800 mb-3">스미싱 헌터</h1>
+                <p class="text-gray-600 mb-10 text-lg">진짜 보안 요원이 되어<br>숨어있는 스미싱 문자를 찾아내세요!</p>
+                <button onclick="startGame()" class="w-full btn-gradient-blue text-white font-bold py-4 px-4 rounded-full text-xl shadow-lg transition-transform transform hover:scale-105">
+                    도전하기!
+                </button>
+            </div>
+
+            <div id="quizScreen" class="hidden flex-grow flex flex-col p-4">
+                <div id="progress" class="text-center text-gray-500 font-bold text-md mb-4">문제 1/5</div>
+                <div class="flex-grow flex flex-col space-y-4 overflow-y-auto px-2">
+                    <div id="quizContent" class="flex flex-col items-start space-y-2">
+                        <!-- Quiz messages will be injected here -->
+                    </div>
+                </div>
+                <div id="choiceButtons" class="grid grid-cols-2 gap-4 mt-auto p-4">
+                    <button id="safeBtn" onclick="selectAnswer(true)" class="btn-gradient-green text-white font-bold py-3 px-4 rounded-full text-lg shadow-lg transition-transform transform hover:scale-105 leading-tight">✅ 진짜<br>(안전)</button>
+                    <button id="smishingBtn" onclick="selectAnswer(false)" class="btn-gradient-red text-white font-bold py-3 px-4 rounded-full text-lg shadow-lg transition-transform transform hover:scale-105 leading-tight">❌ 가짜<br>(스미싱)</button>
+                </div>
+            </div>
+
+            <div id="resultScreen" class="hidden flex-col h-full">
+                <div class="p-6 text-center">
+                    <h2 id="resultTitle" class="text-3xl font-bold text-gray-800 mb-2 leading-tight">결과</h2>
+                    <div id="resultScore" class="text-6xl font-black text-blue-500 mb-4">5/5</div>
+                    <p class="text-gray-700 bg-yellow-100 border-l-4 border-yellow-400 p-3 rounded-lg mb-4">
+                        <strong class="font-bold">핵심 보안 수칙!</strong><br>
+                        의심스러운 문자 속 링크는 절대 누르지 마세요!
+                    </p>
+                </div>
+                <!-- Gemini API Feature -->
+                <div class="bg-gray-100 p-4 border-t border-gray-200 flex-grow">
+                    <h3 class="text-lg font-bold text-gray-800 text-center mb-2">✨ AI 분석기</h3>
+                    <p class="text-center text-sm text-gray-600 mb-3">의심스러운 문자를 붙여넣고<br>AI 분석을 받아보세요!</p>
+                    <textarea id="userInput" class="w-full h-24 p-2 border border-gray-300 rounded-lg text-sm" placeholder="여기에 문자 메시지를 붙여넣으세요..."></textarea>
+                    <button onclick="analyzeWithGemini()" class="w-full mt-2 btn-gradient-blue text-white font-bold py-3 px-4 rounded-full text-md shadow-lg transition-transform transform hover:scale-105">
+                        AI로 분석하기
+                    </button>
+                    <div id="aiLoading" class="hidden flex items-center justify-center mt-4">
+                        <div class="loader"></div>
+                        <p class="ml-3 text-gray-600">분석 중...</p>
+                    </div>
+                    <div id="aiResult" class="mt-4 text-sm bg-white p-3 rounded-lg border hidden"></div>
+                </div>
+                 <div class="p-4 mt-auto">
+                    <button onclick="restartGame()" class="w-full btn-gradient-gray text-white font-bold py-3 px-4 rounded-full text-lg shadow-lg transition-transform transform hover:scale-105">
+                        처음으로
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedbackOverlay" class="hidden absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center p-8">
+                <div id="feedbackContent" class="bg-white p-8 rounded-2xl shadow-xl text-center w-full feedback-animation">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Quiz Data ---
+        const quizData = [
+            { question: '[국민건강보험]\n2025년 건강검진 대상자입니다. 본인인증 후 대상 확인.\nhttp://nhis.co-kr.ws', isSafe: false, explanation: "주소 끝이 '.ws'처럼 이상하게 끝나고, '.co.kr'처럼 보이게 속였어요. 공식 기관 주소는 단순해요. (예: nhis.or.kr)" },
+            { question: '[법원]\n형사소송건으로 소환장이 발부되었습니다. 사건내용 확인 및 다운로드:\nhttp://court-gov.me/dls', isSafe: false, explanation: '법원 등 사법기관은 절대 문자로 소환장을 보내거나 파일을 다운로드하라고 하지 않아요.' },
+            { question: '엄마 나 폰 액정 깨져서 수리 맡겼어. 이걸로 인증해야 하니깐 통신사 앱에서 90만원만 결제 좀 해줘.', isSafe: false, explanation: '가족을 사칭해 돈을 요구하는 전형적인 수법이에요. 꼭 원래 가족 번호로 전화해서 직접 확인해야 해요.' },
+            { question: '(광고) 하루 10분, 월 300만원 부업! 간단한 설문조사 참여하고 현금 받으세요.\n문의: http://part-time.ly/ask', isSafe: false, explanation: '쉽게 큰돈을 벌 수 있다는 광고는 사기일 가능성이 높아요. 개인정보를 요구하거나 유료 가입을 유도할 수 있어요.' },
+            { question: '[신한카드]\n08/28 17:10 일시불 15,800원 승인.\n(주)스타벅스코리아', isSafe: true, explanation: '내가 사용한 것이 맞고, 의심스러운 링크가 없는 일반적인 카드 승인 문자는 안전해요.' }
+        ];
+
+        // --- Game State ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const progressText = document.getElementById('progress');
+        const quizContent = document.getElementById('quizContent');
+        const choiceButtons = document.getElementById('choiceButtons');
+        const feedbackOverlay = document.getElementById('feedbackOverlay');
+        const feedbackContent = document.getElementById('feedbackContent');
+        
+        // --- Functions ---
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            feedbackOverlay.classList.add('hidden');
+            document.getElementById('aiResult').classList.add('hidden');
+            document.getElementById('userInput').value = '';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            choiceButtons.classList.remove('hidden');
+            const question = quizData[currentQuestionIndex];
+            progressText.textContent = `문제 ${currentQuestionIndex + 1}/${quizData.length}`;
+            quizContent.innerHTML = `<div class="message-bubble received">${question.question.replace(/\n/g, '<br>')}</div>`;
+        }
+
+        function selectAnswer(userAnswer) {
+            const correctAnswer = quizData[currentQuestionIndex].isSafe;
+            const explanation = quizData[currentQuestionIndex].explanation;
+            choiceButtons.classList.add('hidden');
+
+            let feedbackHTML = '';
+            if (userAnswer === correctAnswer) {
+                score++;
+                feedbackHTML = `<h3 class="text-3xl font-black text-green-500 mb-4">정답!</h3><p class="text-gray-600 text-md">${explanation}</p>`;
+            } else {
+                feedbackHTML = `<h3 class="text-3xl font-black text-red-500 mb-4">오답!</h3><p class="text-gray-600 text-md">${explanation}</p>`;
+            }
+            feedbackContent.innerHTML = feedbackHTML;
+            feedbackOverlay.classList.remove('hidden');
+            feedbackOverlay.classList.add('flex');
+
+            setTimeout(() => {
+                feedbackOverlay.classList.add('hidden');
+                feedbackOverlay.classList.remove('flex');
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 3500);
+        }
+
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            resultScreen.classList.add('flex');
+
+            const resultTitle = document.getElementById('resultTitle');
+            const resultScore = document.getElementById('resultScore');
+            resultScore.textContent = `${score}/${quizData.length}`;
+
+            if (score === quizData.length) {
+                resultTitle.innerHTML = '완벽해요!<br>당신은 최고의 스미싱 헌터!';
+                resultScore.classList.remove('text-red-500');
+                resultScore.classList.add('text-blue-500');
+            } else if (score >= 3) {
+                resultTitle.innerHTML = '훌륭해요!<br>당신은 스미싱 우수 헌터!';
+                resultScore.classList.remove('text-red-500');
+                resultScore.classList.add('text-blue-500');
+            } else {
+                resultTitle.innerHTML = '아쉬워요!<br>조금 더 노력해봐요!';
+                resultScore.classList.remove('text-blue-500');
+                resultScore.classList.add('text-red-500');
+            }
+        }
+
+        function restartGame() {
+            resultScreen.classList.add('hidden');
+            resultScreen.classList.remove('flex');
+            startScreen.classList.remove('hidden');
+        }
+
+        // --- Gemini API Function ---
+        async function analyzeWithGemini() {
+            const userInput = document.getElementById('userInput').value;
+            const aiLoading = document.getElementById('aiLoading');
+            const aiResult = document.getElementById('aiResult');
+
+            if (userInput.trim() === '') {
+                aiResult.innerHTML = '분석할 문자 메시지를 입력해주세요.';
+                aiResult.classList.remove('hidden');
+                return;
+            }
+
+            aiLoading.classList.remove('hidden');
+            aiResult.classList.add('hidden');
+
+            const systemPrompt = "당신은 문자 메시지의 스미싱 여부를 분석하는 사이버 보안 전문가입니다. 주어진 문자 메시지가 스미싱인지 아닌지 분석하고, 그 이유를 핵심적인 근거를 들어 한국어로 설명해주세요. 마지막에 [판정: 안전], [판정: 주의], 또는 [판정: 위험] 중 하나로 명확하게 결론을 내려주세요.";
+            const userQuery = userInput;
+            const apiKey = ""; // API 키는 비워두세요.
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API 요청 실패: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const analysisText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (analysisText) {
+                    aiResult.innerHTML = analysisText.replace(/\n/g, '<br>');
+                } else {
+                    aiResult.textContent = '분석 결과를 가져오는 데 실패했습니다.';
+                }
+
+            } catch (error) {
+                console.error('Gemini API Error:', error);
+                aiResult.textContent = 'AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            } finally {
+                aiLoading.classList.add('hidden');
+                aiResult.classList.remove('hidden');
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+    </script>
+</body>
+</html>
