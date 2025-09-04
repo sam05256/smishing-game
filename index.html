@@ -3,343 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스미싱 헌터 퀴즈</title>
+    <title>스미싱 서바이벌</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-        .phone-mockup {
-            width: 100%;
-            max-width: 400px;
-            height: 700px;
-            border: 12px solid #1f2937;
-            border-radius: 40px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0,0,0,0.1);
-            position: relative;
-            background-color: #f9fafb;
-        }
-        .phone-screen {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, #ffffff, #f0f4f8);
-            border-radius: 28px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative; /* For overlay positioning */
-        }
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 20px;
-            color: #4b5563;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-        .message-bubble {
-            max-width: 80%;
-            padding: 12px 18px;
-            border-radius: 22px;
-            line-height: 1.6;
-            word-break: break-word;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .message-bubble.received {
-            background-color: #e5e7eb;
-            color: #1f2937;
-            border-top-left-radius: 6px;
-            align-self: flex-start;
-        }
-        .btn-gradient-green {
-            background-image: linear-gradient(to right, #34d399, #10b981);
-        }
-        .btn-gradient-red {
-            background-image: linear-gradient(to right, #f87171, #ef4444);
-        }
-        .btn-gradient-blue {
-             background-image: linear-gradient(to right, #60a5fa, #3b82f6);
-        }
-         .btn-gradient-gray {
-             background-image: linear-gradient(to right, #9ca3af, #6b7280);
-        }
-        @keyframes pop {
-            0% { transform: scale(0.9); opacity: 0; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .feedback-animation {
-            animation: pop 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        }
-        /* Loading Spinner */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* MODIFIED: 불필요하게 스크롤바를 숨기던 스타일을 완전히 제거했습니다. */
     </style>
 </head>
-<body class="bg-gray-200 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-800 flex items-center justify-center min-h-screen">
 
-    <div class="phone-mockup">
-        <div class="phone-screen">
-            <!-- Status Bar -->
-            <div class="status-bar">
-                <span id="currentTime" class="font-bold">14:30</span>
-                <div class="flex items-center space-x-1">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path d="M15 11a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M18 8a6 6 0 00-12 0c0 1.933.783 3.683 2.067 4.933L8 17.583a1 1 0 001.414 0L14 14.583A8 8 0 0018 8z"></path></svg>
-                    <span class="font-bold">86%</span>
-                </div>
-            </div>
-
-            <!-- Main Content Area -->
-            <div id="startScreen" class="flex flex-col items-center justify-center text-center p-8 h-full">
-                <div class="mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-28 w-28 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M3.5 4.5A1.5 1.5 0 015 3h10a1.5 1.5 0 011.5 1.5v7A1.5 1.5 0 0115 13H5a1.5 1.5 0 01-1.5-1.5v-7zM5 4a.5.5 0 00-.5.5v7a.5.5 0 00.5.5h10a.5.5 0 00.5-.5v-7a.5.5 0 00-.5-.5H5z"/>
-                      <path d="M4.5 6.5A.5.5 0 015 6h10a.5.5 0 010 1H5a.5.5 0 01-.5-.5zM5 8a.5.5 0 000 1h4a.5.5 0 000-1H5z"/>
-                      <path fill-rule="evenodd" d="M14.5 13.5a3.5 3.5 0 10-7 0 3.5 3.5 0 007 0zm-1.293 1.293a.75.75 0 01-1.06 1.06l-1.95-1.95a.75.75 0 111.06-1.06l1.95 1.95z" clip-rule="evenodd"/>
+    <!-- Smartphone Frame -->
+    <div class="w-full max-w-sm h-[80vh] min-h-[600px] bg-gray-900 rounded-[40px] shadow-2xl p-4 border-4 border-gray-700">
+        <div id="screen-container" class="relative w-full h-full bg-white rounded-[24px] overflow-hidden flex flex-col">
+            
+            <!-- Start Screen -->
+            <div id="start-screen" class="flex flex-col items-center justify-center h-full bg-gray-100 p-8 text-center">
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">스미싱 서바이벌</h1>
+                <p class="text-gray-600 mb-8">새로운 메시지가 도착했습니다.</p>
+                <div id="start-button" class="relative cursor-pointer hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd" />
                     </svg>
-                </div>
-                <h1 class="text-4xl font-black text-gray-800 mb-3">스미싱 헌터</h1>
-                <p class="text-gray-600 mb-10 text-lg">진짜 보안 요원이 되어<br>숨어있는 스미싱 문자를 찾아내세요!</p>
-                <button onclick="startGame()" class="w-full btn-gradient-blue text-white font-bold py-4 px-4 rounded-full text-xl shadow-lg transition-transform transform hover:scale-105">
-                    도전하기!
-                </button>
-            </div>
-
-            <div id="quizScreen" class="hidden flex-grow flex flex-col p-4">
-                <div id="progress" class="text-center text-gray-500 font-bold text-md mb-4">문제 1/5</div>
-                <div class="flex-grow flex flex-col space-y-4 overflow-y-auto px-2">
-                    <div id="quizContent" class="flex flex-col items-start space-y-2">
-                        <!-- Quiz messages will be injected here -->
+                    <div class="absolute -top-1 -right-1 w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-xl border-4 border-gray-100">
+                        5
                     </div>
                 </div>
-                <div id="choiceButtons" class="grid grid-cols-2 gap-4 mt-auto p-4">
-                    <button id="safeBtn" onclick="selectAnswer(true)" class="btn-gradient-green text-white font-bold py-3 px-4 rounded-full text-lg shadow-lg transition-transform transform hover:scale-105 leading-tight">✅ 진짜<br>(안전)</button>
-                    <button id="smishingBtn" onclick="selectAnswer(false)" class="btn-gradient-red text-white font-bold py-3 px-4 rounded-full text-lg shadow-lg transition-transform transform hover:scale-105 leading-tight">❌ 가짜<br>(스미싱)</button>
+                <p class="mt-8 text-gray-500 animate-pulse">메시지 아이콘을 클릭하여 확인하세요</p>
+            </div>
+
+            <!-- Warning Screen -->
+            <div id="warning-screen" class="hidden absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-10">
+                <div class="bg-white rounded-2xl p-8 text-center shadow-xl max-w-xs">
+                    <p class="text-lg font-bold mb-4">"잠깐! 화면 너머의 상대는<br>정말 당신이 아는 그 사람이<br>맞을까요?"</p>
+                    <p class="text-sm text-gray-600 mb-2">지금부터 당신을 시험에 들게 할 5개의 메시지가 도착했습니다.</p>
+                    <p class="text-sm text-gray-600 mb-6">당신의 선택이 자산을 지킬 수도, 모두 잃게 할 수도 있습니다.</p>
+                    <p class="text-xl font-bold text-blue-600 mb-8">당신은 스미싱 문자를<br>구별해낼 수 있나요?</p>
+                    <button id="challenge-button" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">도전하기</button>
                 </div>
             </div>
 
-            <div id="resultScreen" class="hidden flex-col h-full">
-                <div class="p-6 text-center">
-                    <h2 id="resultTitle" class="text-3xl font-bold text-gray-800 mb-2 leading-tight">결과</h2>
-                    <div id="resultScore" class="text-6xl font-black text-blue-500 mb-4">5/5</div>
-                    <p class="text-gray-700 bg-yellow-100 border-l-4 border-yellow-400 p-3 rounded-lg mb-4">
-                        <strong class="font-bold">핵심 보안 수칙!</strong><br>
-                        의심스러운 문자 속 링크는 절대 누르지 마세요!
-                    </p>
+            <!-- Intermediate Result Modal -->
+            <div id="intermediate-result-modal" class="hidden absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-20">
+                <div class="bg-white rounded-2xl p-8 text-center shadow-xl max-w-xs">
+                    <h3 id="intermediate-result-title" class="text-2xl font-bold mb-4"></h3>
+                    <p id="intermediate-result-tip" class="text-gray-700 mb-6"></p>
+                    <button id="next-question-button" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">다음</button>
                 </div>
-                <!-- Gemini API Feature -->
-                <div class="bg-gray-100 p-4 border-t border-gray-200 flex-grow">
-                    <h3 class="text-lg font-bold text-gray-800 text-center mb-2">✨ AI 분석기</h3>
-                    <p class="text-center text-sm text-gray-600 mb-3">의심스러운 문자를 붙여넣고<br>AI 분석을 받아보세요!</p>
-                    <textarea id="userInput" class="w-full h-24 p-2 border border-gray-300 rounded-lg text-sm" placeholder="여기에 문자 메시지를 붙여넣으세요..."></textarea>
-                    <button onclick="analyzeWithGemini()" class="w-full mt-2 btn-gradient-blue text-white font-bold py-3 px-4 rounded-full text-md shadow-lg transition-transform transform hover:scale-105">
-                        AI로 분석하기
-                    </button>
-                    <div id="aiLoading" class="hidden flex items-center justify-center mt-4">
-                        <div class="loader"></div>
-                        <p class="ml-3 text-gray-600">분석 중...</p>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="game-screen" class="hidden flex-grow flex-col bg-gray-200">
+                <header id="message-header" class="bg-gray-100 p-4 text-center shadow-md">
+                    <h2 id="sender-name" class="font-bold text-lg text-gray-800"></h2>
+                </header>
+                <main class="flex-grow p-4 flex flex-col justify-end overflow-y-auto">
+                    <div id="message-content" class="bg-white p-4 rounded-3xl rounded-bl-lg max-w-xs self-start mb-4 shadow">
+                        <p class="whitespace-pre-wrap text-gray-800"></p>
                     </div>
-                    <div id="aiResult" class="mt-4 text-sm bg-white p-3 rounded-lg border hidden"></div>
-                </div>
-                 <div class="p-4 mt-auto">
-                    <button onclick="restartGame()" class="w-full btn-gradient-gray text-white font-bold py-3 px-4 rounded-full text-lg shadow-lg transition-transform transform hover:scale-105">
-                        처음으로
-                    </button>
-                </div>
+                </main>
+                <footer id="choices-container" class="p-4 grid grid-cols-1 gap-3 bg-gray-100 border-t">
+                    <!-- Choice buttons will be inserted here -->
+                </footer>
             </div>
 
-            <!-- Feedback Overlay -->
-            <div id="feedbackOverlay" class="hidden absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center p-8">
-                <div id="feedbackContent" class="bg-white p-8 rounded-2xl shadow-xl text-center w-full feedback-animation">
+            <!-- Result Screen -->
+            <div id="result-screen" class="hidden flex-col h-full bg-gray-100 p-6 text-center">
+                <div class="flex-grow overflow-y-auto pb-4">
+                    <h2 id="result-title" class="text-3xl font-bold mb-2"></h2>
+                    <p id="result-score" class="text-lg text-gray-600 mb-6"></p>
+                    <div id="result-message" class="mb-8 p-4 bg-blue-100 text-blue-800 rounded-lg"></div>
+                    
+                    <div class="text-left">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">핵심 스미싱 예방 수칙</h3>
+                        <div id="tips-list" class="space-y-3">
+                           <!-- Tips will be inserted here -->
+                        </div>
+                    </div>
                 </div>
+                <button id="restart-button" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0">다시하기</button>
             </div>
 
         </div>
     </div>
 
     <script>
-        // --- Quiz Data ---
-        const quizData = [
-            { question: '[국민건강보험]\n2025년 건강검진 대상자입니다. 본인인증 후 대상 확인.\nhttp://nhis.co-kr.ws', isSafe: false, explanation: "주소 끝이 '.ws'처럼 이상하게 끝나고, '.co.kr'처럼 보이게 속였어요. 공식 기관 주소는 단순해요. (예: nhis.or.kr)" },
-            { question: '[법원]\n형사소송건으로 소환장이 발부되었습니다. 사건내용 확인 및 다운로드:\nhttp://court-gov.me/dls', isSafe: false, explanation: '법원 등 사법기관은 절대 문자로 소환장을 보내거나 파일을 다운로드하라고 하지 않아요.' },
-            { question: '엄마 나 폰 액정 깨져서 수리 맡겼어. 이걸로 인증해야 하니깐 통신사 앱에서 90만원만 결제 좀 해줘.', isSafe: false, explanation: '가족을 사칭해 돈을 요구하는 전형적인 수법이에요. 꼭 원래 가족 번호로 전화해서 직접 확인해야 해요.' },
-            { question: '(광고) 하루 10분, 월 300만원 부업! 간단한 설문조사 참여하고 현금 받으세요.\n문의: http://part-time.ly/ask', isSafe: false, explanation: '쉽게 큰돈을 벌 수 있다는 광고는 사기일 가능성이 높아요. 개인정보를 요구하거나 유료 가입을 유도할 수 있어요.' },
-            { question: '[신한카드]\n08/28 17:10 일시불 15,800원 승인.\n(주)스타벅스코리아', isSafe: true, explanation: '내가 사용한 것이 맞고, 의심스러운 링크가 없는 일반적인 카드 승인 문자는 안전해요.' }
+        const startScreen = document.getElementById('start-screen');
+        const startButton = document.getElementById('start-button');
+        const warningScreen = document.getElementById('warning-screen');
+        const challengeButton = document.getElementById('challenge-button');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const intermediateResultModal = document.getElementById('intermediate-result-modal');
+
+        const senderName = document.getElementById('sender-name');
+        const messageContent = document.querySelector('#message-content p');
+        const choicesContainer = document.getElementById('choices-container');
+
+        const intermediateResultTitle = document.getElementById('intermediate-result-title');
+        const intermediateResultTip = document.getElementById('intermediate-result-tip');
+        const nextQuestionButton = document.getElementById('next-question-button');
+
+        const resultTitle = document.getElementById('result-title');
+        const resultScore = document.getElementById('result-score');
+        const resultMessage = document.getElementById('result-message');
+        const tipsList = document.getElementById('tips-list');
+        const restartButton = document.getElementById('restart-button');
+        
+        const gameData = [
+            {
+                sender: '[CJ대한통운]',
+                content: '[배송지연 알림]\n고객님, 도로명 주소 불일치로 상품이 반송될 예정입니다. 1시간 내로 아래 주소에서 주소를 수정해주세요.\nhttps://cj-loglsvcs.com/tracking',
+                choices: [
+                    { text: '반송되면 안 되는데! 빨리 주소를 수정해야겠다.', isCorrect: false },
+                    { text: 'URL이 좀 이상한데? 공식 앱으로 배송 조회를 해봐야겠다.', isCorrect: true }
+                ],
+                tip: '택배사 사칭 문자는 URL이 매우 교묘합니다. \'.com\' 앞에 있는 도메인 이름(cj-loglsvcs)이 공식 주소(cjlogistics)와 미세하게 다른 경우가 많으니, 공식 앱이나 포털 검색을 통해 확인하세요.',
+                icon: `<svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17H6v-6h11v6h-1M6 17H4a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-2m-4-12H9.88a1 1 0 00-.94.66L7 6m0 0l-1 4h14l-1-4M7 6V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>`
+            },
+            {
+                sender: '은지',
+                content: '나 다음 주에 그 근처 지나가는데, 혹시 시간 되면 잠깐 커피라도 할래? 😊',
+                choices: [
+                    { text: '좋아! 몇 시쯤 괜찮아?', isCorrect: true },
+                    { text: '갑자기? 너 혹시 폰 해킹당한 거 아니야?', isCorrect: false }
+                ],
+                tip: '모든 메시지를 의심할 필요는 없습니다. 개인정보나 금전을 요구하지 않고, 의심스러운 링크가 없다면 안전한 메시지일 가능성이 높습니다. 맥락과 평소 대화 스타일을 고려하여 판단하세요.',
+                icon: `<svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>`
+            },
+            {
+                sender: '대학교 동기 박서준',
+                content: '형! 저 서준이에요. 잘 지내시죠? 다름이 아니라 제가 드디어 결혼합니다! 꼭 오셔서 자리를 빛내주세요 ㅎㅎ\n모바일 청첩장: http://happy-weddingday.info/psj',
+                choices: [
+                    { text: '서준이가 결혼을? 청첩장 보려고 링크를 누른다.', isCorrect: false },
+                    { text: '반가운 소식이지만, 링크는 누르지 말고 카톡으로 따로 축하해줘야겠다.', isCorrect: true }
+                ],
+                tip: '지인이 보낸 URL이라도 클릭하기 전에 주의해야 합니다. 카카오톡 등 다른 메신저를 통해 다시 한번 확인하거나, URL 주소가 공식적인 청첩장 서비스가 맞는지 살펴보는 것이 안전합니다.',
+                icon: `<svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>`
+            },
+            {
+                sender: '[국민건강보험]',
+                content: '[건강검진 통보]\n2025년도 건강검진 대상자입니다. 아래 링크를 통해 본인 인증 후 안내문을 확인하세요.\nwww.nhis-gov.net/checkup',
+                choices: [
+                    { text: '벌써 건강검진 받을 때가 됐나? 링크로 확인하자.', isCorrect: false },
+                    { text: '공공기관은 .go.kr 도메인을 사용한다. 이건 가짜 사이트야.', isCorrect: true }
+                ],
+                tip: '정부 및 공공기관은 \'.go.kr\' 또는 \'.or.kr\' 도메인을 사용합니다. \'.com\', \'.net\' 등 다른 도메인을 사용하는 사이트는 스미싱일 확률이 매우 높습니다.',
+                icon: `<svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`
+            },
+            {
+                sender: '[우리카드 승인]',
+                content: '[Web발신]\n[우리카드] 9/4 18:47\n해외 승인(*****2)\nUSD 85.50 (약 115,000원)\n본인 아닐 시 문의:\n+82-2-1234-5678',
+                choices: [
+                    { text: '내가 쓴 게 아닌데? 바로 전화해서 확인해야겠다.', isCorrect: false },
+                    { text: '해외결제 문자는 공식 앱 알림으로도 온다. 앱부터 확인하자.', isCorrect: true }
+                ],
+                tip: '해외 결제 등 중요한 금융 정보는 문자 메시지에만 의존하지 말고, 해당 금융사의 공식 앱이나 웹사이트를 통해 직접 확인하는 습관이 중요합니다.',
+                icon: `<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>`
+            },
         ];
 
-        // --- Game State ---
-        let currentQuestionIndex = 0;
+        let currentMessageIndex = 0;
         let score = 0;
 
-        // --- DOM Elements ---
-        const startScreen = document.getElementById('startScreen');
-        const quizScreen = document.getElementById('quizScreen');
-        const resultScreen = document.getElementById('resultScreen');
-        const progressText = document.getElementById('progress');
-        const quizContent = document.getElementById('quizContent');
-        const choiceButtons = document.getElementById('choiceButtons');
-        const feedbackOverlay = document.getElementById('feedbackOverlay');
-        const feedbackContent = document.getElementById('feedbackContent');
-        
-        // --- Functions ---
-        function startGame() {
-            currentQuestionIndex = 0;
-            score = 0;
+        function showScreen(screen) {
             startScreen.classList.add('hidden');
+            warningScreen.classList.add('hidden');
+            gameScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
-            quizScreen.classList.remove('hidden');
-            feedbackOverlay.classList.add('hidden');
-            document.getElementById('aiResult').classList.add('hidden');
-            document.getElementById('userInput').value = '';
-            showQuestion();
+            screen.classList.remove('hidden');
         }
 
-        function showQuestion() {
-            choiceButtons.classList.remove('hidden');
-            const question = quizData[currentQuestionIndex];
-            progressText.textContent = `문제 ${currentQuestionIndex + 1}/${quizData.length}`;
-            quizContent.innerHTML = `<div class="message-bubble received">${question.question.replace(/\n/g, '<br>')}</div>`;
+        function startGame() {
+            currentMessageIndex = 0;
+            score = 0;
+            // Shuffle gameData array to randomize question order
+            gameData.sort(() => Math.random() - 0.5);
+            showScreen(gameScreen);
+            displayMessage();
         }
 
-        function selectAnswer(userAnswer) {
-            const correctAnswer = quizData[currentQuestionIndex].isSafe;
-            const explanation = quizData[currentQuestionIndex].explanation;
-            choiceButtons.classList.add('hidden');
+        function displayMessage() {
+            const currentMessage = gameData[currentMessageIndex];
+            senderName.textContent = currentMessage.sender;
+            messageContent.textContent = currentMessage.content;
+            
+            choicesContainer.innerHTML = '';
+            currentMessage.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.className = "w-full bg-white text-blue-600 font-semibold py-3 px-4 rounded-lg border-2 border-blue-500 hover:bg-blue-100 transition-all text-sm";
+                button.onclick = () => handleChoice(choice.isCorrect);
+                choicesContainer.appendChild(button);
+            });
+        }
 
-            let feedbackHTML = '';
-            if (userAnswer === correctAnswer) {
+        function handleChoice(isCorrect) {
+            if (isCorrect) {
                 score++;
-                feedbackHTML = `<h3 class="text-3xl font-black text-green-500 mb-4">정답!</h3><p class="text-gray-600 text-md">${explanation}</p>`;
+                intermediateResultTitle.textContent = "정답입니다!";
+                intermediateResultTitle.className = "text-2xl font-bold mb-4 text-green-600";
             } else {
-                feedbackHTML = `<h3 class="text-3xl font-black text-red-500 mb-4">오답!</h3><p class="text-gray-600 text-md">${explanation}</p>`;
+                intermediateResultTitle.textContent = "오답입니다!";
+                intermediateResultTitle.className = "text-2xl font-bold mb-4 text-red-600";
             }
-            feedbackContent.innerHTML = feedbackHTML;
-            feedbackOverlay.classList.remove('hidden');
-            feedbackOverlay.classList.add('flex');
-
-            setTimeout(() => {
-                feedbackOverlay.classList.add('hidden');
-                feedbackOverlay.classList.remove('flex');
-                currentQuestionIndex++;
-                if (currentQuestionIndex < quizData.length) {
-                    showQuestion();
-                } else {
-                    showResult();
-                }
-            }, 3500);
+            intermediateResultTip.textContent = gameData[currentMessageIndex].tip;
+            intermediateResultModal.classList.remove('hidden');
         }
 
         function showResult() {
-            quizScreen.classList.add('hidden');
-            resultScreen.classList.remove('hidden');
-            resultScreen.classList.add('flex');
-
-            const resultTitle = document.getElementById('resultTitle');
-            const resultScore = document.getElementById('resultScore');
-            resultScore.textContent = `${score}/${quizData.length}`;
-
-            if (score === quizData.length) {
-                resultTitle.innerHTML = '완벽해요!<br>당신은 최고의 스미싱 헌터!';
-                resultScore.classList.remove('text-red-500');
-                resultScore.classList.add('text-blue-500');
-            } else if (score >= 3) {
-                resultTitle.innerHTML = '훌륭해요!<br>당신은 스미싱 우수 헌터!';
-                resultScore.classList.remove('text-red-500');
-                resultScore.classList.add('text-blue-500');
-            } else {
-                resultTitle.innerHTML = '아쉬워요!<br>조금 더 노력해봐요!';
-                resultScore.classList.remove('text-blue-500');
-                resultScore.classList.add('text-red-500');
-            }
-        }
-
-        function restartGame() {
-            resultScreen.classList.add('hidden');
-            resultScreen.classList.remove('flex');
-            startScreen.classList.remove('hidden');
-        }
-
-        // --- Gemini API Function ---
-        async function analyzeWithGemini() {
-            const userInput = document.getElementById('userInput').value;
-            const aiLoading = document.getElementById('aiLoading');
-            const aiResult = document.getElementById('aiResult');
-
-            if (userInput.trim() === '') {
-                aiResult.innerHTML = '분석할 문자 메시지를 입력해주세요.';
-                aiResult.classList.remove('hidden');
-                return;
-            }
-
-            aiLoading.classList.remove('hidden');
-            aiResult.classList.add('hidden');
-
-            const systemPrompt = "당신은 문자 메시지의 스미싱 여부를 분석하는 사이버 보안 전문가입니다. 주어진 문자 메시지가 스미싱인지 아닌지 분석하고, 그 이유를 핵심적인 근거를 들어 한국어로 설명해주세요. 마지막에 [판정: 안전], [판정: 주의], 또는 [판정: 위험] 중 하나로 명확하게 결론을 내려주세요.";
-            const userQuery = userInput;
-            const apiKey = ""; // API 키는 비워두세요.
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            showScreen(resultScreen);
+            resultScore.textContent = `총 점수: ${score} / ${gameData.length}`;
             
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
-            };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API 요청 실패: ${response.status}`);
-                }
-
-                const result = await response.json();
-                const analysisText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                if (analysisText) {
-                    aiResult.innerHTML = analysisText.replace(/\n/g, '<br>');
-                } else {
-                    aiResult.textContent = '분석 결과를 가져오는 데 실패했습니다.';
-                }
-
-            } catch (error) {
-                console.error('Gemini API Error:', error);
-                aiResult.textContent = 'AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-            } finally {
-                aiLoading.classList.add('hidden');
-                aiResult.classList.remove('hidden');
+            let title, message;
+            if (score === 5) {
+                title = "완벽합니다!";
+                message = "당신은 스미싱 마스터!\n주변 사람들에게도 예방법을 알려주세요.";
+                resultTitle.className = "text-3xl font-bold mb-2 text-green-600";
+            } else if (score >= 3) {
+                title = "훌륭해요!";
+                message = "조금만 더 주의하면 스미싱으로부터\n완벽하게 안전할 거예요.";
+                resultTitle.className = "text-3xl font-bold mb-2 text-blue-600";
+            } else if (score >= 1) {
+                title = "주의가 필요해요!";
+                message = "아차 하는 순간 피해를 볼 수 있어요.\n예방 수칙을 꼭 기억하세요.";
+                resultTitle.className = "text-3xl font-bold mb-2 text-yellow-600";
+            } else {
+                title = "위험합니다!";
+                message = "스미싱 공격에 매우 취약한 상태입니다.\n교육이 시급해요!";
+                resultTitle.className = "text-3xl font-bold mb-2 text-red-600";
             }
+            resultTitle.textContent = title;
+            resultMessage.innerHTML = message.replace(/\n/g, '<br>');
+
+            tipsList.innerHTML = '';
+            // Sort the tips to show them in a consistent order
+            const sortedGameData = [...gameData].sort((a, b) => {
+                const order = ['[CJ대한통운]', '은지', '대학교 동기 박서준', '[국민건강보험]', '[우리카드 승인]'];
+                return order.indexOf(a.sender) - order.indexOf(b.sender);
+            });
+
+            sortedGameData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "flex items-start p-3 bg-white rounded-lg shadow-sm text-left";
+                card.innerHTML = `
+                    <div class="flex-shrink-0 mr-4 mt-1">
+                        ${item.icon}
+                    </div>
+                    <p class="text-sm text-gray-700">${item.tip}</p>
+                `;
+                tipsList.appendChild(card);
+            });
         }
 
-        function updateTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
+        startButton.addEventListener('click', () => {
+            warningScreen.classList.remove('hidden');
+        });
 
+        challengeButton.addEventListener('click', startGame);
+
+        restartButton.addEventListener('click', () => {
+             warningScreen.classList.add('hidden');
+             showScreen(startScreen);
+        });
+
+        nextQuestionButton.addEventListener('click', () => {
+            intermediateResultModal.classList.add('hidden');
+            currentMessageIndex++;
+
+            if (currentMessageIndex < gameData.length) {
+                displayMessage();
+            } else {
+                showResult();
+            }
+        });
     </script>
 </body>
 </html>
+
