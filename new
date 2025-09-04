@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스미싱 서바이벌</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        /* MODIFIED: 불필요하게 스크롤바를 숨기던 스타일을 완전히 제거했습니다. */
+    </style>
+</head>
+<body class="bg-gray-800 flex items-center justify-center min-h-screen">
+
+    <!-- Smartphone Frame -->
+    <div class="w-full max-w-sm h-[80vh] min-h-[600px] bg-gray-900 rounded-[40px] shadow-2xl p-4 border-4 border-gray-700">
+        <div id="screen-container" class="relative w-full h-full bg-white rounded-[24px] overflow-hidden flex flex-col">
+            
+            <!-- Start Screen -->
+            <div id="start-screen" class="flex flex-col items-center justify-center h-full bg-gray-100 p-8 text-center">
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">스미싱 서바이벌</h1>
+                <p class="text-gray-600 mb-8">새로운 메시지가 도착했습니다.</p>
+                <div id="start-button" class="relative cursor-pointer hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd" />
+                    </svg>
+                    <div class="absolute -top-1 -right-1 w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-xl border-4 border-gray-100">
+                        5
+                    </div>
+                </div>
+                <p class="mt-8 text-gray-500 animate-pulse">메시지 아이콘을 클릭하여 확인하세요</p>
+            </div>
+
+            <!-- Warning Screen -->
+            <div id="warning-screen" class="hidden absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-10">
+                <div class="bg-white rounded-2xl p-8 text-center shadow-xl max-w-xs">
+                    <p class="text-lg font-bold mb-4">"잠깐! 화면 너머의 상대는<br>정말 당신이 아는 그 사람이<br>맞을까요?"</p>
+                    <p class="text-sm text-gray-600 mb-2">지금부터 당신을 시험에 들게 할 5개의 메시지가 도착했습니다.</p>
+                    <p class="text-sm text-gray-600 mb-6">당신의 선택이 자산을 지킬 수도, 모두 잃게 할 수도 있습니다.</p>
+                    <p class="text-xl font-bold text-blue-600 mb-8">당신은 스미싱 문자를<br>구별해낼 수 있나요?</p>
+                    <button id="challenge-button" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">도전하기</button>
+                </div>
+            </div>
+
+            <!-- Intermediate Result Modal -->
+            <div id="intermediate-result-modal" class="hidden absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 z-20">
+                <div class="bg-white rounded-2xl p-8 text-center shadow-xl max-w-xs">
+                    <h3 id="intermediate-result-title" class="text-2xl font-bold mb-4"></h3>
+                    <p id="intermediate-result-tip" class="text-gray-700 mb-6"></p>
+                    <button id="next-question-button" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">다음</button>
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="game-screen" class="hidden flex-grow flex-col bg-gray-200">
+                <header id="message-header" class="bg-gray-100 p-4 text-center shadow-md">
+                    <h2 id="sender-name" class="font-bold text-lg text-gray-800"></h2>
+                </header>
+                <main class="flex-grow p-4 flex flex-col justify-end overflow-y-auto">
+                    <div id="message-content" class="bg-white p-4 rounded-3xl rounded-bl-lg max-w-xs self-start mb-4 shadow">
+                        <p class="whitespace-pre-wrap text-gray-800"></p>
+                    </div>
+                </main>
+                <footer id="choices-container" class="p-4 grid grid-cols-1 gap-3 bg-gray-100 border-t">
+                    <!-- Choice buttons will be inserted here -->
+                </footer>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="hidden flex-col h-full bg-gray-100 p-6 text-center">
+                <div class="flex-grow overflow-y-auto pb-4">
+                    <h2 id="result-title" class="text-3xl font-bold mb-2"></h2>
+                    <p id="result-score" class="text-lg text-gray-600 mb-6"></p>
+                    <div id="result-message" class="mb-8 p-4 bg-blue-100 text-blue-800 rounded-lg"></div>
+                    
+                    <div class="text-left">
+                        <h3 class="text-xl font-bold mb-4 text-gray-800">핵심 스미싱 예방 수칙</h3>
+                        <div id="tips-list" class="space-y-3">
+                           <!-- Tips will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+                <button id="restart-button" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0">다시하기</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const startScreen = document.getElementById('start-screen');
+        const startButton = document.getElementById('start-button');
+        const warningScreen = document.getElementById('warning-screen');
+        const challengeButton = document.getElementById('challenge-button');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const intermediateResultModal = document.getElementById('intermediate-result-modal');
+
+        const senderName = document.getElementById('sender-name');
+        const messageContent = document.querySelector('#message-content p');
+        const choicesContainer = document.getElementById('choices-container');
+
+        const intermediateResultTitle = document.getElementById('intermediate-result-title');
+        const intermediateResultTip = document.getElementById('intermediate-result-tip');
+        const nextQuestionButton = document.getElementById('next-question-button');
+
+        const resultTitle = document.getElementById('result-title');
+        const resultScore = document.getElementById('result-score');
+        const resultMessage = document.getElementById('result-message');
+        const tipsList = document.getElementById('tips-list');
+        const restartButton = document.getElementById('restart-button');
+        
+        const gameData = [
+            {
+                sender: '[CJ대한통운]',
+                content: '[배송지연 알림]\n고객님, 도로명 주소 불일치로 상품이 반송될 예정입니다. 1시간 내로 아래 주소에서 주소를 수정해주세요.\nhttps://cj-loglsvcs.com/tracking',
+                choices: [
+                    { text: '반송되면 안 되는데! 빨리 주소를 수정해야겠다.', isCorrect: false },
+                    { text: 'URL이 좀 이상한데? 공식 앱으로 배송 조회를 해봐야겠다.', isCorrect: true }
+                ],
+                tip: '택배사 사칭 문자는 URL이 매우 교묘합니다. \'.com\' 앞에 있는 도메인 이름(cj-loglsvcs)이 공식 주소(cjlogistics)와 미세하게 다른 경우가 많으니, 공식 앱이나 포털 검색을 통해 확인하세요.',
+                icon: `<svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17H6v-6h11v6h-1M6 17H4a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-2m-4-12H9.88a1 1 0 00-.94.66L7 6m0 0l-1 4h14l-1-4M7 6V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>`
+            },
+            {
+                sender: '은지',
+                content: '나 다음 주에 그 근처 지나가는데, 혹시 시간 되면 잠깐 커피라도 할래? 😊',
+                choices: [
+                    { text: '좋아! 몇 시쯤 괜찮아?', isCorrect: true },
+                    { text: '갑자기? 너 혹시 폰 해킹당한 거 아니야?', isCorrect: false }
+                ],
+                tip: '모든 메시지를 의심할 필요는 없습니다. 개인정보나 금전을 요구하지 않고, 의심스러운 링크가 없다면 안전한 메시지일 가능성이 높습니다. 맥락과 평소 대화 스타일을 고려하여 판단하세요.',
+                icon: `<svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>`
+            },
+            {
+                sender: '대학교 동기 박서준',
+                content: '형! 저 서준이에요. 잘 지내시죠? 다름이 아니라 제가 드디어 결혼합니다! 꼭 오셔서 자리를 빛내주세요 ㅎㅎ\n모바일 청첩장: http://happy-weddingday.info/psj',
+                choices: [
+                    { text: '서준이가 결혼을? 청첩장 보려고 링크를 누른다.', isCorrect: false },
+                    { text: '반가운 소식이지만, 링크는 누르지 말고 카톡으로 따로 축하해줘야겠다.', isCorrect: true }
+                ],
+                tip: '지인이 보낸 URL이라도 클릭하기 전에 주의해야 합니다. 카카오톡 등 다른 메신저를 통해 다시 한번 확인하거나, URL 주소가 공식적인 청첩장 서비스가 맞는지 살펴보는 것이 안전합니다.',
+                icon: `<svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>`
+            },
+            {
+                sender: '[국민건강보험]',
+                content: '[건강검진 통보]\n2025년도 건강검진 대상자입니다. 아래 링크를 통해 본인 인증 후 안내문을 확인하세요.\nwww.nhis-gov.net/checkup',
+                choices: [
+                    { text: '벌써 건강검진 받을 때가 됐나? 링크로 확인하자.', isCorrect: false },
+                    { text: '공공기관은 .go.kr 도메인을 사용한다. 이건 가짜 사이트야.', isCorrect: true }
+                ],
+                tip: '정부 및 공공기관은 \'.go.kr\' 또는 \'.or.kr\' 도메인을 사용합니다. \'.com\', \'.net\' 등 다른 도메인을 사용하는 사이트는 스미싱일 확률이 매우 높습니다.',
+                icon: `<svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`
+            },
+            {
+                sender: '[우리카드 승인]',
+                content: '[Web발신]\n[우리카드] 9/4 18:47\n해외 승인(*****2)\nUSD 85.50 (약 115,000원)\n본인 아닐 시 문의:\n+82-2-1234-5678',
+                choices: [
+                    { text: '내가 쓴 게 아닌데? 바로 전화해서 확인해야겠다.', isCorrect: false },
+                    { text: '해외결제 문자는 공식 앱 알림으로도 온다. 앱부터 확인하자.', isCorrect: true }
+                ],
+                tip: '해외 결제 등 중요한 금융 정보는 문자 메시지에만 의존하지 말고, 해당 금융사의 공식 앱이나 웹사이트를 통해 직접 확인하는 습관이 중요합니다.',
+                icon: `<svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>`
+            },
+        ];
+
+        let currentMessageIndex = 0;
+        let score = 0;
+
+        function showScreen(screen) {
+            startScreen.classList.add('hidden');
+            warningScreen.classList.add('hidden');
+            gameScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            screen.classList.remove('hidden');
+        }
+
+        function startGame() {
+            currentMessageIndex = 0;
+            score = 0;
+            // Shuffle gameData array to randomize question order
+            gameData.sort(() => Math.random() - 0.5);
+            showScreen(gameScreen);
+            displayMessage();
+        }
+
+        function displayMessage() {
+            const currentMessage = gameData[currentMessageIndex];
+            senderName.textContent = currentMessage.sender;
+            messageContent.textContent = currentMessage.content;
+            
+            choicesContainer.innerHTML = '';
+            currentMessage.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.className = "w-full bg-white text-blue-600 font-semibold py-3 px-4 rounded-lg border-2 border-blue-500 hover:bg-blue-100 transition-all text-sm";
+                button.onclick = () => handleChoice(choice.isCorrect);
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        function handleChoice(isCorrect) {
+            if (isCorrect) {
+                score++;
+                intermediateResultTitle.textContent = "정답입니다!";
+                intermediateResultTitle.className = "text-2xl font-bold mb-4 text-green-600";
+            } else {
+                intermediateResultTitle.textContent = "오답입니다!";
+                intermediateResultTitle.className = "text-2xl font-bold mb-4 text-red-600";
+            }
+            intermediateResultTip.textContent = gameData[currentMessageIndex].tip;
+            intermediateResultModal.classList.remove('hidden');
+        }
+
+        function showResult() {
+            showScreen(resultScreen);
+            resultScore.textContent = `총 점수: ${score} / ${gameData.length}`;
+            
+            let title, message;
+            if (score === 5) {
+                title = "완벽합니다!";
+                message = "당신은 스미싱 마스터!\n주변 사람들에게도 예방법을 알려주세요.";
+                resultTitle.className = "text-3xl font-bold mb-2 text-green-600";
+            } else if (score >= 3) {
+                title = "훌륭해요!";
+                message = "조금만 더 주의하면 스미싱으로부터\n완벽하게 안전할 거예요.";
+                resultTitle.className = "text-3xl font-bold mb-2 text-blue-600";
+            } else if (score >= 1) {
+                title = "주의가 필요해요!";
+                message = "아차 하는 순간 피해를 볼 수 있어요.\n예방 수칙을 꼭 기억하세요.";
+                resultTitle.className = "text-3xl font-bold mb-2 text-yellow-600";
+            } else {
+                title = "위험합니다!";
+                message = "스미싱 공격에 매우 취약한 상태입니다.\n교육이 시급해요!";
+                resultTitle.className = "text-3xl font-bold mb-2 text-red-600";
+            }
+            resultTitle.textContent = title;
+            resultMessage.innerHTML = message.replace(/\n/g, '<br>');
+
+            tipsList.innerHTML = '';
+            // Sort the tips to show them in a consistent order
+            const sortedGameData = [...gameData].sort((a, b) => {
+                const order = ['[CJ대한통운]', '은지', '대학교 동기 박서준', '[국민건강보험]', '[우리카드 승인]'];
+                return order.indexOf(a.sender) - order.indexOf(b.sender);
+            });
+
+            sortedGameData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "flex items-start p-3 bg-white rounded-lg shadow-sm text-left";
+                card.innerHTML = `
+                    <div class="flex-shrink-0 mr-4 mt-1">
+                        ${item.icon}
+                    </div>
+                    <p class="text-sm text-gray-700">${item.tip}</p>
+                `;
+                tipsList.appendChild(card);
+            });
+        }
+
+        startButton.addEventListener('click', () => {
+            warningScreen.classList.remove('hidden');
+        });
+
+        challengeButton.addEventListener('click', startGame);
+
+        restartButton.addEventListener('click', () => {
+             warningScreen.classList.add('hidden');
+             showScreen(startScreen);
+        });
+
+        nextQuestionButton.addEventListener('click', () => {
+            intermediateResultModal.classList.add('hidden');
+            currentMessageIndex++;
+
+            if (currentMessageIndex < gameData.length) {
+                displayMessage();
+            } else {
+                showResult();
+            }
+        });
+    </script>
+</body>
+</html>
+
